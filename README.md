@@ -141,7 +141,7 @@ tests/replica/run.sh     # Tidegate behind an existing Postfix: once-only filter
 tests/lab/run.sh down
 ```
 
-The end-to-end checks use the standard GTUBE and EICAR test strings and made-up impostor messages. They cover verdicts, headers, release links (opening a link must not release anything; tampered links are refused), the digest, the admin console and a scanner outage. Results from public spam and phishing samples are in [docs/testing.md](docs/testing.md).
+The end-to-end checks use the standard GTUBE and EICAR test strings and made-up impostor messages. They cover verdicts, headers, release links (opening a link must not release anything; tampered links are refused), the digest, the admin console and a scanner outage. The latest results, and what testing changed, are in [docs/testing.md](docs/testing.md).
 
 ## Monitoring
 
@@ -157,12 +157,6 @@ The end-to-end checks use the standard GTUBE and EICAR test strings and made-up 
 - **Banners change messages.** A banner (and any change to the body or subject) breaks the sender's DKIM signature. Leave `impostor.banner` off unless your mail server trusts the gateway (Microsoft 365: Enhanced Filtering for Connectors; or ARC sealing in Rspamd). Warning headers alone don't affect DKIM.
 - **Secrets** live only in `.env` (git-ignored). Rotate `TIDEGATE_SECRET_KEY` to cancel every outstanding link.
 - **Report a vulnerability** privately; see [SECURITY.md](SECURITY.md).
-
-## Screenshots
-
-| Overview | Message log | A held message |
-|---|---|---|
-| ![Overview](docs/screenshots/overview.png) | ![Message log](docs/screenshots/messages.png) | ![Held message](docs/screenshots/item.png) |
 
 ## License
 
