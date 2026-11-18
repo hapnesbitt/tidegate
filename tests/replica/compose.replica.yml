@@ -1,4 +1,4 @@
-# The edge Postfix for the replica test, on the lab network with a fixed address.
+# The edge Postfix for the replica test, on the lab network with a fixed address (no host port).
 services:
   edge:
     image: tidegate:0.1.0
@@ -8,8 +8,6 @@ services:
       MODE: ${EDGE_MODE:-tidegate}
     volumes:
       - ./tests/replica/edge:/edge:ro
-    ports:
-      - "127.0.0.1:2527:25"
     networks:
       tidegate:
         ipv4_address: 172.31.241.20

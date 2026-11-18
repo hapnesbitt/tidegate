@@ -52,7 +52,7 @@ def dc(*args: str, env: dict | None = None, data: str | None = None) -> str:
     return out.stdout
 
 
-def send(subject: str, to: str, *, attach: bytes | None = None, pad: int = 0, port: int = 2527) -> str:
+def send(subject: str, to: str, *, attach: bytes | None = None, pad: int = 0) -> str:
     subject = f"{subject} {RUN}"
     m = EmailMessage()
     m["From"], m["To"], m["Subject"] = "Alice Example <alice@example.net>", to, subject
@@ -60,7 +60,7 @@ def send(subject: str, to: str, *, attach: bytes | None = None, pad: int = 0, po
     m.set_content("Hello Ross,\n\nA message for the replica test.\n" + ("x" * 75 + "\n") * (pad // 76))
     if attach:
         m.add_attachment(attach, maintype="application", subtype="octet-stream", filename="file.com")
-    with smtplib.SMTP("127.0.0.1", port, timeout=60) as s:
+    with smtplib.SMTP("172.31.241.20", 25, timeout=60) as s:   # the edge, on the lab network
         s.ehlo("tester.example.net")
         code, resp = s.docmd("XCLIENT", "ADDR=203.0.113.20 NAME=mail.example.net HELO=mail.example.net")
         if code != 220:

@@ -1,5 +1,14 @@
 # Lab additions: Mailpit stands in for the mail server behind the gateway, and Rspamd answers the GTUBE test strings.
+# The lab publishes no ports on the host. The tests reach the containers at fixed addresses on the lab network, so a
+# lab run never adds a listening socket to the server (and never trips a new-port alert on a monitored host).
 services:
+  mta:
+    ports: !reset []
+  web:
+    ports: !reset []
+    networks:
+      tidegate:
+        ipv4_address: 172.31.241.30
   rspamd:
     volumes:
       - ./tests/lab/rspamd-options.inc:/etc/rspamd/override.d/options.inc:ro
@@ -8,6 +17,6 @@ services:
     restart: "no"
     environment:
       MP_MAX_MESSAGES: "20000"
-    ports:
-      - "127.0.0.1:8025:8025"
-    networks: [tidegate]
+    networks:
+      tidegate:
+        ipv4_address: 172.31.241.40

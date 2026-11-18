@@ -55,7 +55,7 @@ class Lab:
 
     def send(self, msg: EmailMessage | bytes, sender: str, rcpts: list[str], ip: str | None = "203.0.113.10",
              helo: str = "mail.example.net", port: int | None = None) -> None:
-        with smtplib.SMTP("127.0.0.1", port or self.a.smtp_port, timeout=60) as s:
+        with smtplib.SMTP(self.a.smtp_host, port or self.a.smtp_port, timeout=60) as s:
             s.ehlo("tester.example.net")
             if ip:
                 code, resp = s.docmd("XCLIENT", f"ADDR={ip} NAME={helo} HELO={helo}")
@@ -123,9 +123,11 @@ def rcpt(name: str) -> str:
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--env-file", default="tests/lab/lab.env")
-    p.add_argument("--smtp-port", type=int, default=2526)
-    p.add_argument("--web", default="http://127.0.0.1:8081")
-    p.add_argument("--mailpit", default="http://127.0.0.1:8025")
+    # The lab publishes no host ports: these are the containers' fixed addresses on the lab network.
+    p.add_argument("--smtp-host", default="172.31.241.25")
+    p.add_argument("--smtp-port", type=int, default=25)
+    p.add_argument("--web", default="http://172.31.241.30:8080")
+    p.add_argument("--mailpit", default="http://172.31.241.40:8025")
     p.add_argument("--admin-password", default="")
     p.add_argument("--skip-outage", action="store_true")
     a = p.parse_args()
