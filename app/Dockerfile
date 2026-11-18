@@ -9,7 +9,10 @@ RUN apt-get update \
  && useradd --system --uid 1500 --gid 1500 --home-dir /data --no-create-home --shell /usr/sbin/nologin tidegate
 COPY tidegate /usr/lib/python3/dist-packages/tidegate
 COPY bin/ /usr/local/bin/
+# postlog is setgid postdrop upstream, so unprivileged programs (the filter runs as tidegate) can log through postlogd;
+# Debian ships it without that bit, and the filter's one-line verdicts then never reach the container log.
 RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/tidegate-filter \
+ && chgrp postdrop /usr/sbin/postlog && chmod 2755 /usr/sbin/postlog \
  && python3 -m compileall -q /usr/lib/python3/dist-packages/tidegate
 EXPOSE 25 8080
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
