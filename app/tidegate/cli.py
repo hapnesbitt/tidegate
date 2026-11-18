@@ -7,9 +7,35 @@ import json
 import sys
 import time
 
-from . import config, digest, links
+from . import config, digest, impostor, links
 from .store import Store
 from .web import hash_password
+
+
+def stats(store: Store, hours: int, now: float | None = None) -> dict:
+    """What monitoring may see: counts, and the sender DOMAINS of held mail. Never addresses, names or subjects."""
+    since = int((now or time.time()) - hours * 3600)
+    results = {"delivered": 0, "tagged": 0, "warned": 0, "unscanned": 0, "observed": 0, "held": 0}
+    held = {c: 0 for c in config.CATEGORIES}
+    domains: set[str] = set()
+    for row in store.messages(since, limit=1_000_000):
+        verdict = row["verdict"] or ""
+        if verdict.startswith("quarantine:"):
+            category = verdict.split(":", 1)[1]
+            results["held"] += 1
+            held[category] = held.get(category, 0) + 1
+            senders = impostor.addresses(row["from_header"]) if row["from_header"] else []
+            address = senders[0][1] if senders else (row["sender"] or "")
+            domains.add(impostor.domain_of(address) if "@" in address else "(none)")
+            continue
+        parts = verdict.split("+")
+        results["delivered"] += 1
+        results["tagged"] += "tag" in parts
+        results["warned"] += "warn" in parts
+        results["unscanned"] += "unscanned" in parts
+        results["observed"] += any(p.startswith("observe-") for p in parts)
+    return {"hours": hours, "results": results, "held_by_category": held,
+            "held_sender_domains": sorted(domains)[:20], "held_now": sum(store.held_count().values())}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -24,6 +50,8 @@ def main(argv: list[str] | None = None) -> int:
     lk = sub.add_parser("link", help="print a release link for a quarantine item")
     lk.add_argument("id", type=int)
     sub.add_parser("digest", help="send digests now for everything due")
+    sp = sub.add_parser("stats", help="counts for monitoring, as JSON: no addresses, names or subjects")
+    sp.add_argument("--hours", type=int, default=24)
     pa = sub.add_parser("policy-add", help="add an allow or block entry")
     pa.add_argument("kind", choices=["allow", "block"])
     pa.add_argument("pattern")
@@ -61,6 +89,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{cfg.digest.public_url.rstrip('/')}/r/{token}")
     elif args.cmd == "digest":
         print(f"{digest.run(cfg, store, config.secret_key())} digest(s) sent")
+    elif args.cmd == "stats":
+        print(json.dumps(stats(store, args.hours)))
     elif args.cmd == "policy-add":
         store.policy_add(args.kind, args.pattern, args.recipient, note="added from the command line", by="cli")
         print(f"{args.kind} {args.pattern} added")

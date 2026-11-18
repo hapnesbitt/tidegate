@@ -143,6 +143,10 @@ tests/lab/run.sh down
 
 The end-to-end checks use the standard GTUBE and EICAR test strings and made-up impostor messages. They cover verdicts, headers, release links (opening a link must not release anything; tampered links are refused), the digest, the admin console and a scanner outage. Results from public spam and phishing samples are in [docs/testing.md](docs/testing.md).
 
+## Monitoring
+
+`ops/textfile_probe.py` reads Tidegate's queue, the last day's results and held mail. It writes Prometheus metrics for node-exporter's textfile collector and prints one status line (OK, HELD, STUCK or DOWN), which you can send to a status board. Run it from cron every 5 minutes on the Docker host. Alert on `tidegate_queue_oldest_age_seconds` (mail waiting inside Tidegate) and `tidegate_up`. Behind an existing Postfix, `--front-postfix` also watches that Postfix's queue for your domains. It reports only counts and the sender domains of held mail: never addresses, names or subjects.
+
 ## Security notes
 
 - **The admin console listens on 127.0.0.1 only.** Reach it through SSH or a VPN. Sign-in uses a scrypt password hash, and failed attempts are throttled. Cookies are `HttpOnly` and `SameSite=Strict`, and every form has a CSRF token.
