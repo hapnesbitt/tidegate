@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Tidegate">
+  <rect width="64" height="64" rx="14" fill="#0f4c4a"/>
+  <path d="M14 40V22a18 18 0 0 1 36 0v18" fill="none" stroke="#f4f1ea" stroke-width="5" stroke-linecap="round"/>
+  <path d="M23 40V24M32 40V20M41 40V24" stroke="#f4f1ea" stroke-width="3" stroke-linecap="round"/>
+  <path d="M8 47c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4 5-4 8-4" fill="none" stroke="#5eead4" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M8 55c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4 5-4 8-4" fill="none" stroke="#5eead4" stroke-width="3.5" stroke-linecap="round" opacity=".6"/>
+</svg>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Overview · Tidegate{% endblock %}
+{% block body %}
+<h1>Overview</h1>
+<p class="muted">Filtering mail for {{ cfg.gateway.domains | join(", ") }}. Quarantine holds: {{ cfg.filter.quarantine_categories | join(", ") }}.
+{% if cfg.filter.fail_mode == "open" %}If a scanner stops answering, mail is delivered unscanned and marked.{% else %}If a scanner stops answering, mail waits in the queue until it is back.{% endif %}</p>
+{% if not rspamd_ok %}<p class="alert">Rspamd is not answering. {% if cfg.filter.fail_mode == "open" %}Mail is being delivered unscanned.{% else %}Mail is waiting in the queue.{% endif %}</p>{% endif %}
+<div class="tiles">
+  {% for title, s in [("Last 24 hours", day), ("Last 7 days", week)] %}
+  <section class="card">
+    <h2>{{ title }}</h2>
+    <dl class="stats">
+      <div><dt>Messages</dt><dd>{{ s.total }}</dd></div>
+      <div><dt>Clean</dt><dd>{{ s.clean }}</dd></div>
+      <div><dt>Tagged as possible spam</dt><dd>{{ s.tagged }}</dd></div>
+      <div><dt>Delivered with a warning</dt><dd>{{ s.warned }}</dd></div>
+      {% for cat, n in s.held.items() %}<div><dt>Held: {{ labels.get(cat, cat) }}</dt><dd>{{ n }}</dd></div>{% endfor %}
+      {% if s.observed %}<div><dt>Would have been held (observe mode)</dt><dd>{{ s.observed }}</dd></div>{% endif %}
+      {% if s.unscanned %}<div><dt>Delivered unscanned</dt><dd class="bad">{{ s.unscanned }}</dd></div>{% endif %}
+    </dl>
+  </section>
+  {% endfor %}
+  <section class="card">
+    <h2>Quarantine now</h2>
+    <dl class="stats">
+      {% for cat, n in held.items() %}<div><dt>{{ labels.get(cat, cat) }}</dt><dd>{{ n }}</dd></div>{% else %}<div><dt>Nothing held</dt><dd>0</dd></div>{% endfor %}
+    </dl>
+    <p class="muted small">Last digest run: {{ last_digest or "none yet" }}</p>
+  </section>
+</div>
+<h2>Latest messages</h2>
+{% include "_log_table.html" %}
+{% endblock %}

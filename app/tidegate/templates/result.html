@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="narrow card">
+  <p>{{ note }}</p>
+  {% if back %}<p><a href="{{ back }}">&larr; Back</a></p>{% endif %}
+</section>
+{% endblock %}

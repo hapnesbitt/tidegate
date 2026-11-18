@@ -1,0 +1,13 @@
+# Lab additions: Mailpit stands in for the mail server behind the gateway, and Rspamd answers the GTUBE test strings.
+services:
+  rspamd:
+    volumes:
+      - ./tests/lab/rspamd-options.inc:/etc/rspamd/override.d/options.inc:ro
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: "no"
+    environment:
+      MP_MAX_MESSAGES: "20000"
+    ports:
+      - "127.0.0.1:8025:8025"
+    networks: [tidegate]

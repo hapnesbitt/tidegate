@@ -1,0 +1,25 @@
+# Lab settings: example.com mail goes to Mailpit; nothing can leave for any other domain.
+[gateway]
+hostname = "gw.lab.example"
+domains = ["example.com"]
+next_hop = "[mailpit]:1025"
+outbound = "none"
+xclient_hosts = ["172.31.241.1"]
+internal_subnet = "172.31.241.0/24"
+
+[filter]
+quarantine_score = 10.0
+tag_score = 6.0
+
+[impostor]
+vip_names = ["Jane Smith"]
+protected_domains = ["partner-bank.com"]
+banner = true
+
+[digest]
+sender = "Tidegate Quarantine <quarantine@example.com>"
+public_url = "http://127.0.0.1:8081"
+hours = [8]
+
+[web]
+secure_cookies = false

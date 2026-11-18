@@ -1,0 +1,16 @@
+{{ count }} message{{ "s" if count != 1 }} sent to {{ recipient }} {{ "were" if count != 1 else "was" }} held because {{ "they look" if count != 1 else "it looks" }} like spam.
+
+If you know and trust a sender, open the Release link for that message.
+{% for r in rows %}
+
+{{ r.when }}  {{ r.label }}
+From:    {{ r.sender }}
+Subject: {{ r.subject }}
+{% if r.release %}Release: {{ r.release }}
+{% endif %}
+{% endfor %}
+
+All your held messages: {{ page }}
+
+These links work for {{ days }} days. Held messages are deleted after a month.
+Tidegate, an open-source email gateway. Not affiliated with Proofpoint, Inc. or any other email security vendor.

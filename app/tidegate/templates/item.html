@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Held message · Tidegate{% endblock %}
+{% block body %}
+<p><a href="{{ url_for('quarantine') }}">&larr; Quarantine</a></p>
+<h1>{{ item.subject or "(no subject)" }}</h1>
+<dl class="facts">
+  <div><dt>Category</dt><dd><span class="pill c-{{ item.category }}">{{ labels.get(item.category, item.category) }}</span>{% if item.category not in user_release %} <span class="small muted">(only an admin can release this)</span>{% endif %}</dd></div>
+  <div><dt>From</dt><dd>{{ item.from_header }}</dd></div>
+  <div><dt>Envelope sender</dt><dd>{{ item.sender or "<> (a bounce)" }}</dd></div>
+  <div><dt>To</dt><dd>{{ item.recipient }}</dd></div>
+  <div><dt>Received</dt><dd>{{ item.ts | when }}</dd></div>
+  <div><dt>Score</dt><dd>{{ "%.2f" | format(item.score or 0) }}</dd></div>
+  <div><dt>Status</dt><dd>{{ item.status }}{% if item.status_by %} ({{ item.status_by }}){% endif %}</dd></div>
+</dl>
+<h2>Why it was held</h2>
+<ul>{% for reason in item.reasons | fromjson %}<li>{{ reason }}</li>{% endfor %}</ul>
+<p class="small mono">{% for s in item.symbols | fromjson %}{{ s.name }}({{ s.score }}) {% endfor %}</p>
+{% if item.status == "held" %}
+<div class="actions">
+  <form method="post" action="{{ url_for('admin_release', qid=item.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="primary">Release</button></form>
+  <form method="post" action="{{ url_for('admin_release', qid=item.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="allow" value="1"><button>Release and allow this sender for {{ item.recipient }}</button></form>
+  <form method="post" action="{{ url_for('admin_delete', qid=item.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="danger">Delete</button></form>
+  <a class="button" href="{{ url_for('download', qid=item.id) }}">Download (.eml.txt)</a>
+</div>
+{% endif %}
+{% if pv %}
+<h2>Headers</h2>
+<dl class="facts">{% for k, v in pv.headers.items() %}<div><dt>{{ k }}</dt><dd>{{ v }}</dd></div>{% endfor %}</dl>
+{% if pv.attachments %}<h2>Attachments</h2><ul>{% for a in pv.attachments %}<li>{{ a.name }} <span class="muted small">({{ a.type }}, {{ a.size }} bytes)</span></li>{% endfor %}</ul>{% endif %}
+<h2>Text <span class="small muted">(shown as plain text; links are not clickable)</span></h2>
+<pre class="preview">{{ pv.text }}</pre>
+<details><summary>All headers</summary><pre class="preview">{{ pv.header_block }}</pre></details>
+{% endif %}
+{% endblock %}

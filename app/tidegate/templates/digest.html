@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f1ea;font-family:Arial,Helvetica,sans-serif;color:#17302f">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea"><tr><td align="center" style="padding:20px 10px">
+<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:8px">
+<tr><td style="background:#0f4c4a;color:#ffffff;padding:16px 20px;border-radius:8px 8px 0 0;font-size:18px;font-weight:bold">Messages held for you</td></tr>
+<tr><td style="padding:16px 20px;font-size:15px;line-height:1.5">
+{{ count }} message{{ "s" if count != 1 }} sent to <strong>{{ recipient }}</strong> {{ "were" if count != 1 else "was" }} held because {{ "they look" if count != 1 else "it looks" }} like spam. If you know and trust a sender, choose <strong>Release</strong>.
+</td></tr>
+{% for r in rows %}
+<tr><td style="padding:10px 20px;border-top:1px solid #e6e1d6">
+<div style="font-size:12px;color:#5b6b6a">{{ r.when }} &middot; {{ r.label }}</div>
+<div style="font-size:15px;font-weight:bold;margin:2px 0">{{ r.subject }}</div>
+<div style="font-size:14px;color:#33413f">{{ r.sender }}</div>
+{% if r.release %}<div style="margin-top:6px"><a href="{{ r.release }}" style="display:inline-block;background:#0f766e;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:4px;font-size:14px">Release</a></div>{% endif %}
+</td></tr>
+{% endfor %}
+<tr><td style="padding:16px 20px;border-top:1px solid #e6e1d6;font-size:14px"><a href="{{ page }}" style="color:#0f766e">See all your held messages</a></td></tr>
+<tr><td style="padding:12px 20px 18px;font-size:12px;color:#5b6b6a">These links work for {{ days }} days. Held messages are deleted after a month. Tidegate is an open-source email gateway, not affiliated with Proofpoint, Inc. or any other email security vendor.</td></tr>
+</table></td></tr></table>
+</body></html>

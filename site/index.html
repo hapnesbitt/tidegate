@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidegate: a free, open-source email security gateway</title>
+<meta name="description" content="Tidegate is a free, open-source email security gateway you run yourself: spam, virus, phishing and impostor filtering with a quarantine and a daily digest. Built on Postfix, Rspamd and ClamAV.">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<style>
+:root { --bg:#f4f1ea; --card:#fff; --ink:#17302f; --muted:#56615f; --line:#e2ddd1; --brand:#0f4c4a; --accent:#0f766e; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0e1716; --card:#152321; --ink:#e7efed; --muted:#9db0ad; --line:#26403c; --brand:#0b3a38; --accent:#2bb3a3; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+header { background:var(--brand); color:#f4f1ea; padding:44px 16px 40px; }
+.wrap { max-width:860px; margin:0 auto; padding:0 16px; }
+header .wrap { display:flex; gap:22px; align-items:center; flex-wrap:wrap; }
+header img { width:84px; height:84px; }
+h1 { font-size:34px; line-height:1.15; margin:0 0 6px; }
+header p { margin:0; font-size:19px; color:#d8ebe8; max-width:600px; }
+main { padding:8px 0 40px; }
+h2 { font-size:22px; margin:34px 0 10px; }
+a { color:var(--accent); }
+.cta { display:flex; flex-wrap:wrap; gap:12px; margin:22px 0 0; }
+.cta a { display:inline-block; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; background:#5eead4; color:#062120; }
+.cta a.ghost { background:transparent; color:#f4f1ea; border:1px solid #9fd3cc; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+.card h3 { margin:0 0 6px; font-size:17px; }
+.card p { margin:0; color:var(--muted); font-size:15.5px; }
+pre { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; overflow-x:auto; font-size:13.5px; }
+.note { background:var(--card); border-left:4px solid var(--accent); padding:12px 16px; border-radius:6px; }
+footer { border-top:1px solid var(--line); padding:20px 0 40px; color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="logo.svg" alt="">
+    <div>
+      <h1>Tidegate</h1>
+      <p>A free, open-source email security gateway you run yourself. It stops spam, viruses, phishing and impostors before they reach your inbox.</p>
+      <div class="cta">
+        <a href="https://github.com/hapnesbitt/tidegate">Get it on GitHub</a>
+        <a class="ghost" href="https://github.com/hapnesbitt/tidegate#install">Install guide</a>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <p class="note"><strong>Not affiliated with Proofpoint.</strong> Tidegate is an independent project. It is not affiliated with, endorsed by or connected to Proofpoint, Inc. or any other email security vendor. All trademarks belong to their owners.</p>
+
+  <h2>What it does</h2>
+  <div class="grid">
+    <div class="card"><h3>Filters every message</h3><p>Rspamd checks for spam and checks SPF, DKIM and DMARC. ClamAV scans attachments, and phishing feeds check every link.</p></div>
+    <div class="card"><h3>Quarantine and daily digest</h3><p>Held spam shows up in one email per person each day. Each message has a Release button, so people fix their own false positives.</p></div>
+    <div class="card"><h3>Impostor warnings</h3><p>It catches look-alike domains, your own domain faked, and your CEO's name on mail from outside. Clear cases are held, and doubtful ones get a warning.</p></div>
+    <div class="card"><h3>Allow, block and log</h3><p>Allow and block lists can't be fooled by a faked address. A searchable log shows every message and why it was handled as it was.</p></div>
+  </div>
+
+  <h2>How it works</h2>
+  <p>Tidegate sits in front of your mail server: Microsoft 365, Google Workspace, Exchange or Postfix. It is built from proven open-source parts. Postfix receives the mail, Rspamd scores it, ClamAV scans it, and a small Python service decides what to do and runs the quarantine pages. It's one Docker Compose file, and it needs about 2.5 GB of memory.</p>
+  <pre>git clone https://github.com/hapnesbitt/tidegate.git
+cd tidegate
+cp .env.example .env
+cp config/tidegate.toml.example config/tidegate.toml
+docker compose up -d</pre>
+  <p>Already running Postfix? Keep it as the front door and add Tidegate behind it. The <a href="https://github.com/hapnesbitt/tidegate/blob/main/docs/existing-postfix.md">guide</a> covers the three changes, a fail-open path and a rollback.</p>
+
+  <h2>Status</h2>
+  <p>Version 0.1 is the first release. It is tested end to end in a lab and runs in front of real mail. Next on the list is a DMARC report dashboard, then link checks at click time.</p>
+
+  <h2>Free, and staying free</h2>
+  <p>Tidegate's code is under the Apache License 2.0, so you can use it, change it and share it, including at work. It runs Postfix, Rspamd, ClamAV, Valkey and Unbound unchanged, each under its own free license.</p>
+</main>
+<footer class="wrap">
+  Tidegate is built by Ross Nesbitt in his home lab. It is not affiliated with Proofpoint, Inc., Microsoft, Google or any other company. Questions and bug reports: <a href="https://github.com/hapnesbitt/tidegate/issues">GitHub issues</a>.
+</footer>
+</body>
+</html>

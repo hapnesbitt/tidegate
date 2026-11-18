@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}Tidegate{% endblock %}</title>
+<link rel="icon" href="{{ url_for('static', filename='logo.svg') }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top">
+  <span class="brand"><img src="{{ url_for('static', filename='logo.svg') }}" alt="" width="28" height="28">Tidegate</span>
+  {% if is_admin %}
+  <nav>
+    <a href="{{ url_for('dashboard') }}">Overview</a>
+    <a href="{{ url_for('messages') }}">Message log</a>
+    <a href="{{ url_for('quarantine') }}">Quarantine</a>
+    <a href="{{ url_for('policy') }}">Allow and block</a>
+    <form method="post" action="{{ url_for('logout') }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="linkish">Sign out</button></form>
+  </nav>
+  {% endif %}
+</header>
+<main>{% block body %}{% endblock %}</main>
+<footer>Tidegate {{ version }}, free and open source (Apache-2.0). An independent project, not affiliated with Proofpoint, Inc. or any other email security vendor.</footer>
+</body>
+</html>

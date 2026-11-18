@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Release a message · Tidegate{% endblock %}
+{% block body %}
+<section class="narrow card">
+  <h1>Release this message?</h1>
+  <dl class="facts">
+    <div><dt>From</dt><dd>{{ item.from_header or item.sender }}</dd></div>
+    <div><dt>Subject</dt><dd>{{ item.subject or "(no subject)" }}</dd></div>
+    <div><dt>Held</dt><dd>{{ item.ts | when }}</dd></div>
+    <div><dt>To</dt><dd>{{ item.recipient }}</dd></div>
+  </dl>
+  {% if item.status != "held" %}
+  <p class="alert">This message was already {{ item.status }}.</p>
+  {% else %}
+  <p class="muted small">Release it only if you know and trust the sender. It will arrive in your inbox in a minute or two.</p>
+  <form method="post"><input type="hidden" name="form" value="{{ form }}"><button class="primary">Release</button></form>
+  <form method="post"><input type="hidden" name="form" value="{{ form }}"><input type="hidden" name="allow" value="1"><button>Release, and always accept mail from this sender</button></form>
+  {% endif %}
+</section>
+{% endblock %}

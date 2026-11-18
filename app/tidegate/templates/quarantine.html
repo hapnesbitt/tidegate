@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Quarantine · Tidegate{% endblock %}
+{% block body %}
+<h1>Quarantine</h1>
+<form method="get" class="filters">
+  <label>Status <select name="status">
+    {% for v, label in [("held", "Held"), ("released", "Released"), ("deleted", "Deleted"), ("", "All")] %}
+    <option value="{{ v }}" {{ "selected" if v == status }}>{{ label }}</option>{% endfor %}
+  </select></label>
+  <label>Category <select name="category">
+    <option value="">All</option>
+    {% for v, label in labels.items() %}<option value="{{ v }}" {{ "selected" if v == category }}>{{ label }}</option>{% endfor %}
+  </select></label>
+  <label>Search <input name="q" value="{{ q }}" placeholder="address or subject"></label>
+  <button>Show</button>
+</form>
+<div class="scroll">
+<table class="log">
+  <thead><tr><th>Time</th><th>Category</th><th>From</th><th>To</th><th>Subject</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr>
+    <td class="nowrap"><a href="{{ url_for('item', qid=r.id) }}">{{ r.ts | when }}</a></td>
+    <td><span class="pill c-{{ r.category }}">{{ labels.get(r.category, r.category) }}</span></td>
+    <td>{{ r.from_header or r.sender }}</td>
+    <td>{{ r.recipient }}</td>
+    <td><a href="{{ url_for('item', qid=r.id) }}">{{ r.subject or "(no subject)" }}</a></td>
+    <td>{{ r.status }}{% if r.status_by %}<br><span class="small muted">{{ r.status_by }}</span>{% endif %}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="muted">Nothing here.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

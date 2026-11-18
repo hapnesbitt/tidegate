@@ -1,0 +1,19 @@
+# The same edge before Tidegate (the rollback target).
+compatibility_level = 3.9
+myhostname = mail.arc-codex.test
+mydomain = arc-codex.test
+myorigin = $myhostname
+mydestination = $myhostname, arc-codex.test, localhost.$mydomain, localhost
+mynetworks = 127.0.0.0/8, 172.31.241.20/32
+mynetworks_style = host
+inet_interfaces = all
+inet_protocols = ipv4
+virtual_alias_maps = texthash:/etc/postfix/virtual
+home_mailbox = Maildir/
+alias_maps =
+alias_database =
+maillog_file = /dev/stdout
+message_size_limit = 10240000
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+smtpd_authorized_xclient_hosts = 172.31.241.1
+smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination

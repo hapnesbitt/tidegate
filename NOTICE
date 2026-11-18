@@ -1,0 +1,11 @@
+Tidegate
+Copyright 2026 Ross Nesbitt
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Tidegate is an independent project. It is not affiliated with, endorsed by, sponsored by or connected to
+Proofpoint, Inc. or any other email security vendor. All trademarks belong to their owners.
+
+At run time Tidegate uses, unchanged and in separate containers: Postfix (IBM Public License 1.0 / Eclipse Public
+License 2.0), Rspamd (Apache License 2.0), ClamAV (GNU GPL 2.0), Valkey (BSD 3-Clause), Unbound (BSD 3-Clause),
+and Debian packages of Python, Flask, Jinja2 and Waitress under their own free licenses.

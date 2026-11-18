@@ -1,0 +1,15 @@
+# Appended to the stock master.cf: the transport that hands mail to Tidegate.
+# XFORWARD passes the original client's address; soft_bounce turns any refusal into a retry, never a bounce;
+# when Tidegate can't be reached, the fallback relay delivers straight in through 127.0.0.2: Postfix won't use one of
+# its own listening addresses as a fallback, and 127.0.0.2 isn't one, yet it is in mynetworks (so no second FILTER) and
+# it isn't 127.0.0.1 (which some mail tools read as "a local user sent this"). The transport's own host name keeps the
+# greeting-based loop check quiet.
+tidegate  unix  -       -       n       -       4       smtp
+  -o syslog_name=postfix/tidegate
+  -o myhostname=tidegate-handoff.localdomain
+  -o smtp_bind_address=127.0.0.2
+  -o smtp_send_xforward_command=yes
+  -o smtp_tls_security_level=none
+  -o smtp_sasl_auth_enable=no
+  -o smtp_fallback_relay=[127.0.0.2]:25
+  -o soft_bounce=yes

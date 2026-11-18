@@ -1,0 +1,132 @@
+# Tidegate: Postfix (mta) -> Tidegate filter -> Rspamd + ClamAV -> your mail server.
+# Settings: config/tidegate.toml (filtering) and .env (ports, secrets). See README.md.
+name: ${COMPOSE_PROJECT_NAME:-tidegate}
+
+services:
+  mta:
+    image: tidegate:0.1.0
+    build: ./app
+    command: ["mta"]
+    hostname: ${TIDEGATE_HOSTNAME:-tidegate}
+    restart: unless-stopped
+    ports:
+      - "${SMTP_BIND:-0.0.0.0}:${SMTP_PORT:-25}:25"
+    environment:
+      TZ: ${TZ:-UTC}
+      TIDEGATE_SUBNET: ${TIDEGATE_SUBNET:-172.31.240.0/24}
+    volumes:
+      - ${TIDEGATE_CONFIG_DIR:-./config}:/etc/tidegate:ro
+      - ./certs:/certs:ro
+      - data:/data
+      - spool:/var/spool/postfix
+    dns: ["${TIDEGATE_DNS_IP:-172.31.240.53}"]
+    networks:
+      tidegate:
+        ipv4_address: ${TIDEGATE_MTA_IP:-172.31.240.25}
+    depends_on: [rspamd]
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "postfix", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    image: tidegate:0.1.0
+    command: ["web"]
+    user: "1500:1500"
+    restart: unless-stopped
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:8080"
+    environment:
+      TZ: ${TZ:-UTC}
+      TIDEGATE_SUBNET: ${TIDEGATE_SUBNET:-172.31.240.0/24}
+      TIDEGATE_REINJECT_HOST: mta
+      TIDEGATE_SECRET_KEY: ${TIDEGATE_SECRET_KEY:?set TIDEGATE_SECRET_KEY in .env}
+      TIDEGATE_ADMIN_PASSWORD_HASH: ${TIDEGATE_ADMIN_PASSWORD_HASH:-}
+    volumes:
+      - ${TIDEGATE_CONFIG_DIR:-./config}:/etc/tidegate:ro
+      - data:/data
+    networks: [tidegate]
+    depends_on: [mta]
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  scheduler:
+    image: tidegate:0.1.0
+    command: ["scheduler"]
+    user: "1500:1500"
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-UTC}
+      TIDEGATE_SUBNET: ${TIDEGATE_SUBNET:-172.31.240.0/24}
+      TIDEGATE_REINJECT_HOST: mta
+      TIDEGATE_SECRET_KEY: ${TIDEGATE_SECRET_KEY:?set TIDEGATE_SECRET_KEY in .env}
+    volumes:
+      - ${TIDEGATE_CONFIG_DIR:-./config}:/etc/tidegate:ro
+      - data:/data
+    networks: [tidegate]
+    depends_on: [mta]
+    mem_limit: 128m
+
+  rspamd:
+    image: rspamd/rspamd:4.3@sha256:c0f248d9401bda76b44fb0152d1aaa035b6cf66337d1a0f4097fa0e48bc894cc
+    restart: unless-stopped
+    volumes:
+      - ./rspamd/local.d:/etc/rspamd/local.d:ro
+      - rspamd:/var/lib/rspamd
+    dns: ["${TIDEGATE_DNS_IP:-172.31.240.53}"]
+    networks: [tidegate]
+    depends_on: [valkey, unbound, clamav]
+    mem_limit: 640m
+
+  clamav:
+    image: clamav/clamav:1.5
+    restart: unless-stopped
+    environment:
+      CLAMAV_NO_MILTERD: "true"
+    volumes:
+      - ./clamav/clamd.conf:/etc/clamav/clamd.conf:ro
+      - clamav:/var/lib/clamav
+    networks: [tidegate]
+    mem_limit: 2g
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    command: ["valkey-server", "--save", "300", "10", "--appendonly", "no", "--maxmemory", "200mb",
+              "--maxmemory-policy", "volatile-ttl"]
+    volumes:
+      - valkey:/data
+    networks: [tidegate]
+    mem_limit: 256m
+
+  unbound:
+    image: tidegate-unbound:0.1.0
+    build: ./unbound
+    restart: unless-stopped
+    networks:
+      tidegate:
+        ipv4_address: ${TIDEGATE_DNS_IP:-172.31.240.53}
+    mem_limit: 128m
+
+networks:
+  tidegate:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: ${TIDEGATE_BRIDGE:-br-tidegate}
+    ipam:
+      config:
+        - subnet: ${TIDEGATE_SUBNET:-172.31.240.0/24}
+          gateway: ${TIDEGATE_GATEWAY:-172.31.240.1}
+
+volumes:
+  data:
+  spool:
+  rspamd:
+  clamav:
+  valkey:

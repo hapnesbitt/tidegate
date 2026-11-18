@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Message log · Tidegate{% endblock %}
+{% block body %}
+<h1>Message log</h1>
+<form method="get" class="filters">
+  <label>Search <input name="q" value="{{ q }}" placeholder="address, subject, queue ID or IP"></label>
+  <label>Result <select name="verdict">
+    {% for v, label in [("", "Any"), ("deliver", "Delivered"), ("quarantine", "Held"), ("deliver+tag", "Tagged")] %}
+    <option value="{{ v }}" {{ "selected" if v == verdict }}>{{ label }}</option>{% endfor %}
+  </select></label>
+  <label>Days <input name="days" type="number" min="1" max="90" value="{{ days }}"></label>
+  <button>Show</button>
+</form>
+<p class="muted small">{{ rows | length }} message(s), newest first (at most 500).</p>
+{% include "_log_table.html" %}
+{% endblock %}

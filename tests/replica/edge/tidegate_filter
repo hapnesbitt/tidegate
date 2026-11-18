@@ -1,0 +1,2 @@
+# Mail from outside for these domains goes through Tidegate (published on 127.0.0.1:2525, as on a real server).
+arc-codex.test FILTER tidegate:[127.0.0.1]:2525

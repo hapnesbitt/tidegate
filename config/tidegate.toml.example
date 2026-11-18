@@ -1,0 +1,41 @@
+# Copy to config/tidegate.toml. Every setting below shows its default unless marked "example".
+
+[gateway]
+hostname = "mx1.example.com"            # example: this gateway's public name (your MX record points here)
+domains = ["example.com"]               # example: the domains whose incoming mail Tidegate filters
+next_hop = "[mail.example.com]:25"      # example: your mail server; [brackets] skip the MX lookup
+# routes = { "example.org" = "example-org.mail.protection.outlook.com" }   # per-domain next hops
+valid_recipients = []                   # optional list of real addresses; others are refused at the door
+outbound = "bounces"                    # "none" in a test lab: nothing is sent to other domains
+soft_bounce = false                     # true keeps undeliverable mail queued instead of bouncing it
+xclient_hosts = []                      # test labs only
+xforward_hosts = []                     # set when another MTA sits in front and forwards the client's address
+
+[filter]
+quarantine_score = 10.0                 # Rspamd score at which a message counts as spam
+tag_score = 6.0                         # score at which it is delivered with X-Spam-Flag: YES
+quarantine_categories = ["virus", "phish", "impostor", "blocked", "spam"]
+user_release = ["spam"]                 # what people may release from their digest
+fail_mode = "closed"                    # "open" delivers mail unscanned (and marked) while a scanner is down
+
+[impostor]
+enabled = true
+protected_domains = []                  # example: ["yourbank.com", "yourpayroll.com"]
+vip_names = []                          # example: ["Jane Smith", "Pat Lee"]
+banner = false                          # visible warning in the message body (changes the message; see README)
+
+[digest]
+enabled = true
+hours = [8]
+sender = "Tidegate Quarantine <quarantine@example.com>"   # example
+public_url = "https://quarantine.example.com"            # example: where people open the release links
+link_days = 14
+
+[retention]
+quarantine_days = 30
+log_days = 30
+
+[web]
+admin_user = "admin"
+secure_cookies = true                   # false only while testing over plain http://localhost
+trust_proxy = false                     # true behind a reverse proxy that sets X-Forwarded-For

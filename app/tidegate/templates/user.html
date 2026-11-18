@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Your held messages · Tidegate{% endblock %}
+{% block body %}
+<h1>Messages held for {{ recipient }}</h1>
+<p class="muted">These were held in the last 30 days. Release one if you know and trust the sender.</p>
+<div class="scroll">
+<table class="log">
+  <thead><tr><th>Time</th><th>From</th><th>Subject</th><th>Why</th><th></th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr>
+    <td class="nowrap">{{ r.ts | when }}</td>
+    <td>{{ r.from_header or r.sender }}</td>
+    <td>{{ r.subject or "(no subject)" }}</td>
+    <td><span class="pill c-{{ r.category }}">{{ labels.get(r.category, r.category) }}</span></td>
+    <td>
+      {% if r.category in user_release %}
+      <form method="post" action="{{ url_for('user_release', token=token, qid=r.id) }}"><input type="hidden" name="form" value="{{ form }}"><button class="primary">Release</button></form>
+      {% else %}<span class="small muted">Held for your IT team</span>{% endif %}
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="muted">Nothing is held for you right now.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+.env
+tests/lab/lab.env
+tests/replica/replica.env
+config/tidegate.toml
+certs/*
+!certs/.keep
+__pycache__/
+*.pyc
+.DS_Store

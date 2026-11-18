@@ -1,0 +1,27 @@
+{% set rows = recent if recent is defined else rows %}
+<div class="scroll">
+<table class="log">
+  <thead><tr><th>Time</th><th>From</th><th>To</th><th>Subject</th><th>Score</th><th>Result</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr class="v-{{ r.verdict.split(':')[0].split('+')[0] }}">
+    <td class="nowrap">{{ r.ts | when }}</td>
+    <td>{{ r.from_header or r.sender }}</td>
+    <td>{{ r.recipient }}</td>
+    <td>{{ r.subject }}</td>
+    <td class="num">{{ "%.1f" | format(r.score or 0) }}</td>
+    <td>
+      <details><summary>{{ r.verdict }}</summary>
+        <ul class="small">{% for reason in r.reasons | fromjson %}<li>{{ reason }}</li>{% endfor %}</ul>
+        <p class="small muted">Client {{ r.client_ip or "?" }} ({{ r.helo or "no HELO" }}), queue {{ r.queue_id }}, {{ r.size }} bytes, Rspamd: {{ r.rspamd_action }}</p>
+        <p class="small mono">{% for s in r.symbols | fromjson %}{{ s.name }}({{ s.score }}) {% endfor %}</p>
+        {% if r.quarantine_id %}<p><a href="{{ url_for('item', qid=r.quarantine_id) }}">Open in quarantine</a></p>{% endif %}
+      </details>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="muted">No messages yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>

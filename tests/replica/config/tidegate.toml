@@ -1,0 +1,24 @@
+# Tidegate behind the edge: the same settings proposed for a live server behind an existing Postfix.
+[gateway]
+hostname = "tidegate.arc-codex.test"
+domains = ["arc-codex.test"]
+next_hop = "[172.31.241.20]:25"
+outbound = "none"
+soft_bounce = true
+xforward_hosts = ["172.31.241.20"]
+internal_subnet = "172.31.241.0/24"
+# Smaller than the edge's 10 MB on purpose: the test checks that a refusal becomes a retry, not a bounce.
+message_size_limit = 200000
+
+[filter]
+fail_mode = "open"
+quarantine_categories = ["virus", "phish", "impostor"]
+
+[impostor]
+banner = false
+
+[digest]
+enabled = false
+
+[web]
+secure_cookies = false
