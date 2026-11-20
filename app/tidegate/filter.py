@@ -23,7 +23,8 @@ OUR_HEADERS = {"x-tidegate-verdict", "x-tidegate-warning", "x-tidegate-released"
 def log(line: str) -> None:
     """One line in the mail log (the mta container's output), through Postfix's own logger."""
     try:
-        subprocess.run(["postlog", "-t", "postfix/tidegate", "-p", "info", line[:900]], timeout=5, check=False,
+        # Full path: pipe(8) starts the filter with a bare environment (no PATH), so "postlog" alone is never found.
+        subprocess.run(["/usr/sbin/postlog", "-t", "postfix/tidegate", "-p", "info", line[:900]], timeout=5, check=False,
                        stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
         pass
