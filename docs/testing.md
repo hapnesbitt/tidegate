@@ -60,7 +60,29 @@ Also checked:
   mail from the test address, so the score was correct and the test data was wrong. The tests now use .test domains,
   which have no DNS records.
 
-## Next
+## Public sample sets (2026-11-25)
 
-Detection rates on public spam and phishing sample sets (the SpamAssassin public corpus and a public phishing corpus)
-will be added here.
+`tests/lab/corpus.py` sent 300 random messages from each public set through the lab gateway, unchanged, with the
+default thresholds (tag at 6, spam at 10). Sets: the [SpamAssassin public corpus](https://spamassassin.apache.org/old/publiccorpus/)
+(easy ham 2003-02-28, spam 2005-03-11) and the 2025 file of Jose Nazario's phishing corpus (CC BY 4.0).
+
+| Set | Delivered clean | Delivered, tagged as possible spam | Held as spam | Held as phishing |
+|---|---:|---:|---:|---:|
+| Normal mail (ham) | 96.0% | 3.0% | 1.0% | 0% |
+| Spam (2005) | 33.3% | 46.3% | 20.3% | 0% |
+| Phishing (2025) | 56.3% | 19.0% (+0.3% warned) | 19.7% | 4.7% |
+
+**Read these numbers with care:**
+- **Content only:** the messages come from the lab network, so SPF, DNS-blocklist and sender-reputation checks, which do
+  most of the work on live mail, had nothing to judge. The table measures message content, headers and links.
+- **Old mail:** the spam set is from 2005, and its links and sender addresses are long dead. Phishing from 2025 is harder
+  to catch by content alone, and phishing-feed matches need links that are still listed.
+- **Tagging counts:** "tagged" mail still reaches the inbox, with `X-Spam-Flag: YES`. Only the "held" columns keep mail
+  from arriving.
+- **False positives:** 3 of 300 normal messages (1%) scored 10 or more. In an observe-mode install, nothing is held for that.
+- **No tuning:** nothing was tuned on these sets. Rspamd also learns from your mail over time (Bayes), which these runs
+  didn't use.
+
+Treat these as a floor on content alone. A live install adds the sender's real address, SPF, DKIM and DMARC results, and
+blocklists. A fair live number needs a week of real mail, which is why the first install tags spam and holds only
+viruses, phishing links and faked own-domain mail.
