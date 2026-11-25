@@ -3,7 +3,7 @@
 
 Run it from cron every 5 minutes on the Docker host, as a user allowed to run docker (and postqueue, which any user
 may run). It never changes anything. It writes the metrics file atomically and prints one line that starts with
-OK, HELD, STUCK or DOWN.
+OK, REVIEW, HELD, STUCK or DOWN.
 
   python3 ops/textfile_probe.py --textfile /var/lib/node_exporter/textfile/tidegate.prom \\
       [--project tidegate] [--inbound-domain example.com ...] [--front-postfix]
@@ -137,6 +137,10 @@ def probe(a, now: float) -> tuple[list[str], str]:
     elif stats and r["held"]:
         line = (f"HELD: {r['held']} held in 24 h ({held_text}) from {', '.join(stats['held_sender_domains']) or '?'}; "
                 f"{flow}; {where}")
+    elif stats and r["observed"]:
+        # Observe mode let something through that the settings would hold (filter.quarantine_categories): not OK, so a
+        # person compares it with the mail that matters before holding is turned on.
+        line = f"REVIEW: {r['observed']} in 24 h would have been held (observe mode); {flow}; {where}"
     elif stats:
         line = f"OK: {where}; 24 h: {flow}; nothing held; queue empty"
     else:
